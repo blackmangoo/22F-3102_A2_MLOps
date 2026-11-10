@@ -1,6 +1,7 @@
 import io
 import json
 import os
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -11,11 +12,15 @@ from PIL import Image, UnidentifiedImageError
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_INFO_PATH = BASE_DIR / "model_info.json"
+MODEL_TFLITE_PATH = BASE_DIR / "model.tflite"
+
 API_KEY = os.environ.get("API_KEY", "")
-INFO = json.load(open("model_info.json"))
+INFO = json.load(open(MODEL_INFO_PATH, "r", encoding="utf-8"))
 THRESHOLD = INFO["threshold"]
 
-INTERP = Interpreter(model_path="model.tflite")      # loaded once at start-up
+INTERP = Interpreter(model_path=str(MODEL_TFLITE_PATH))      # loaded once at start-up
 INTERP.allocate_tensors()
 IN = INTERP.get_input_details()[0]
 OUT = INTERP.get_output_details()[0]
